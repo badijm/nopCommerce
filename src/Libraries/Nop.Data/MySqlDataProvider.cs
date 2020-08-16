@@ -224,10 +224,9 @@ namespace Nop.Data
         /// <returns>Integer identity; null if cannot get the result</returns>
         public virtual int? GetTableIdent<T>() where T : BaseEntity
         {
-            using (var currentConnection = CreateDataConnection())
-            {
-                var tableName = currentConnection.GetTable<T>().TableName;
-                var databaseName = currentConnection.Connection.Database;
+            using var currentConnection = CreateDataConnection();
+            var tableName = currentConnection.GetTable<T>().TableName;
+            var databaseName = currentConnection.Connection.Database;
 
                 //we're using the DbConnection object until linq2db solve this issue https://github.com/linq2db/linq2db/issues/1987
                 //with DataContext we could be used KeepConnectionAlive option
@@ -276,7 +275,8 @@ namespace Nop.Data
             using var currentConnection = CreateDataConnection();
             var tableName = currentConnection.GetTable<T>().TableName;
 
-            currentConnection.Execute($"ALTER TABLE `{tableName}` AUTO_INCREMENT = {ident};");
+                currentConnection.Execute($"ALTER TABLE '{tableName}' AUTO_INCREMENT = {ident}");
+            }
         }
 
         /// <summary>

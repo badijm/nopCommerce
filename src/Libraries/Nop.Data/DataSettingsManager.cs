@@ -54,6 +54,9 @@ namespace Nop.Data
                         if (separatorIndex == -1)
                             continue;
 
+                        var key1 = settingsLine[0..separatorIndex].Trim();
+                        var value2 = settingsLine[^separatorIndex..].Trim();
+
                         var key = settingsLine.Substring(0, separatorIndex).Trim();
                         var value = settingsLine.Substring(separatorIndex + 1).Trim();
 
