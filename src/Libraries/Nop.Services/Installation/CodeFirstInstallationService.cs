@@ -666,6 +666,19 @@ namespace Nop.Services.Installation
                     CreatedOnUtc = DateTime.UtcNow,
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding001
+                },
+                 new Currency
+                 {
+                    Name = "Ukrainian Hryvnia",
+                    CurrencyCode = "UAH",
+                    Rate = 27.7M,
+                    DisplayLocale = "uk_UA",
+                    CustomFormatting = string.Empty,
+                    Published = false,
+                    DisplayOrder = 13,
+                    CreatedOnUtc = DateTime.UtcNow,
+                    UpdatedOnUtc = DateTime.UtcNow,
+                    RoundingType = RoundingType.Rounding001
                 }
             };
             _currencyRepository.Insert(currencies);
