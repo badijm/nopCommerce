@@ -274,7 +274,7 @@ namespace Nop.Data
             using var currentConnection = CreateDataConnection();
             var tableName = currentConnection.GetTable<T>().TableName;
 
-            currentConnection.Execute($"ALTER TABLE `{tableName}` AUTO_INCREMENT = {ident};");
+            currentConnection.Execute($"ALTER TABLE '{tableName}' AUTO_INCREMENT = {ident}");
         }
 
         /// <summary>
