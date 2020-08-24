@@ -74,7 +74,7 @@ namespace Nop.Core.Html
             if (lastIndex - firstIndex <= 10) 
                 return url;
 
-            var page = url.Substring(firstIndex, lastIndex - firstIndex);
+            var page = url[firstIndex..lastIndex];
             var length = url.Length - max + 3;
             if (page.Length > length)
                 url = url.Replace(page, "..." + page.Substring(length));

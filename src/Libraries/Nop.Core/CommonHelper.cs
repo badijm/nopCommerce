@@ -66,7 +66,7 @@ namespace Nop.Core
 
             email = email.Trim();
 
-           return _emailRegex.IsMatch(email);
+            return _emailRegex.IsMatch(email);
         }
 
         /// <summary>
@@ -117,12 +117,12 @@ namespace Nop.Core
             if (string.IsNullOrEmpty(str))
                 return str;
 
-            if (str.Length <= maxLength) 
+            if (str.Length <= maxLength)
                 return str;
 
             var pLen = postfix?.Length ?? 0;
 
-            var result = str.Substring(0, maxLength - pLen);
+            var result = str[0..(maxLength - pLen)];
             if (!string.IsNullOrEmpty(postfix))
             {
                 result += postfix;
@@ -183,7 +183,7 @@ namespace Nop.Core
             var comparer = EqualityComparer<T>.Default;
             return !a1.Where((t, i) => !comparer.Equals(t, a2[i])).Any();
         }
-        
+
         /// <summary>
         /// Sets a property on an object to a value.
         /// </summary>
@@ -192,8 +192,10 @@ namespace Nop.Core
         /// <param name="value">The value to set the property to.</param>
         public static void SetProperty(object instance, string propertyName, object value)
         {
-            if (instance == null) throw new ArgumentNullException(nameof(instance));
-            if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+            if (instance == null)
+                throw new ArgumentNullException(nameof(instance));
+            if (propertyName == null)
+                throw new ArgumentNullException(nameof(propertyName));
 
             var instanceType = instance.GetType();
             var pi = instanceType.GetProperty(propertyName);
@@ -226,7 +228,7 @@ namespace Nop.Core
         /// <returns>The converted value.</returns>
         public static object To(object value, Type destinationType, CultureInfo culture)
         {
-            if (value == null) 
+            if (value == null)
                 return null;
 
             var sourceType = value.GetType();

@@ -106,14 +106,11 @@ namespace Nop.Plugin.Shipping.ShipStation.Services
             request.Credentials = new NetworkCredential(_shipStationSettings.ApiKey, _shipStationSettings.ApiSecret);
             var resp = request.GetResponse();
 
-            using (var rs = resp.GetResponseStream())
-            {
-                if (rs == null) return string.Empty;
-                using (var sr = new StreamReader(rs))
-                {
-                    return sr.ReadToEnd();
-                }
-            }
+            using var rs = resp.GetResponseStream();
+            if (rs == null)
+                return string.Empty;
+            using var sr = new StreamReader(rs);
+            return sr.ReadToEnd();
         }
 
         private int ConvertFromPrimaryMeasureDimension(decimal quantity, MeasureDimension usedMeasureDimension)
@@ -256,16 +253,14 @@ namespace Nop.Plugin.Shipping.ShipStation.Services
                 };
             }
 
-            using (var client = new WebClient())
-            {
-                client.Credentials = new NetworkCredential(_shipStationSettings.ApiKey, _shipStationSettings.ApiSecret);
+            using var client = new WebClient();
+            client.Credentials = new NetworkCredential(_shipStationSettings.ApiKey, _shipStationSettings.ApiSecret);
 
-                client.Headers.Add("Content-Type", CONTENT_TYPE);
+            client.Headers.Add("Content-Type", CONTENT_TYPE);
 
-                var data = client.UploadString($"{API_URL}{LIST_RATES_CMD}", JsonConvert.SerializeObject(postData));
+            var data = client.UploadString($"{API_URL}{LIST_RATES_CMD}", JsonConvert.SerializeObject(postData));
 
-                return TryGetError(data) ? new List<ShipStationServiceRate>() : JsonConvert.DeserializeObject<List<ShipStationServiceRate>>(data);
-            }
+            return TryGetError(data) ? new List<ShipStationServiceRate>() : JsonConvert.DeserializeObject<List<ShipStationServiceRate>>(data);
         }
         
         protected virtual IList<Carrier> GetCarriers()

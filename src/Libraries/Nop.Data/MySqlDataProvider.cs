@@ -224,42 +224,40 @@ namespace Nop.Data
         /// <returns>Integer identity; null if cannot get the result</returns>
         public virtual int? GetTableIdent<T>() where T : BaseEntity
         {
-            using (var currentConnection = CreateDataConnection())
+            using var currentConnection = CreateDataConnection();
+            var tableName = currentConnection.GetTable<T>().TableName;
+            var databaseName = currentConnection.Connection.Database;
+
+            //we're using the DbConnection object until linq2db solve this issue https://github.com/linq2db/linq2db/issues/1987
+            //with DataContext we could be used KeepConnectionAlive option
+            using var dbConnerction = (DbConnection)CreateDbConnection();
+
+            dbConnerction.StateChange += (sender, e) =>
             {
-                var tableName = currentConnection.GetTable<T>().TableName;
-                var databaseName = currentConnection.Connection.Database;
-
-                //we're using the DbConnection object until linq2db solve this issue https://github.com/linq2db/linq2db/issues/1987
-                //with DataContext we could be used KeepConnectionAlive option
-                using var dbConnerction = (DbConnection)CreateDbConnection();
-
-                dbConnerction.StateChange += (sender, e) =>
+                try
                 {
-                    try
-                    {
-                        if (e.CurrentState != ConnectionState.Open)
-                            return;
+                    if (e.CurrentState != ConnectionState.Open)
+                        return;
 
-                        var connection = (IDbConnection)sender;
-                        using var command = connection.CreateCommand();
-                        command.Connection = connection;
-                        command.CommandText = $"SET @@SESSION.information_schema_stats_expiry = 0;";
-                        command.ExecuteNonQuery();
-                    }
-                    //ignoring for older than 8.0 versions MySQL (#1193 Unknown system variable)
-                    catch (MySqlException ex) when (ex.Number == 1193)
-                    {
-                        //ignore
-                    }
-                };
+                    var connection = (IDbConnection)sender;
+                    using var command = connection.CreateCommand();
+                    command.Connection = connection;
+                    command.CommandText = $"SET @@SESSION.information_schema_stats_expiry = 0;";
+                    command.ExecuteNonQuery();
+                }
+                //ignoring for older than 8.0 versions MySQL (#1193 Unknown system variable)
+                catch (MySqlException ex) when (ex.Number == 1193)
+                {
+                    //ignore
+                }
+            };
 
-                using var command = dbConnerction.CreateCommand();
-                command.Connection = dbConnerction;
-                command.CommandText = $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = '{databaseName}' AND TABLE_NAME = '{tableName}'";
-                dbConnerction.Open();
+            using var command = dbConnerction.CreateCommand();
+            command.Connection = dbConnerction;
+            command.CommandText = $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = '{databaseName}' AND TABLE_NAME = '{tableName}'";
+            dbConnerction.Open();
 
-                return Convert.ToInt32(command.ExecuteScalar() ?? 1);
-            }
+            return Convert.ToInt32(command.ExecuteScalar() ?? 1);
         }
 
         /// <summary>
